@@ -19,7 +19,7 @@ class NewScholarshipForm(forms.Form):
     url = forms.URLField(label="Url")
     amount = forms.IntegerField(label="Amount",required=False) 
     fullride = forms.BooleanField(label="Full Ride", required=False) 
-    date = forms.DateField(label="Deadline:")
+    date = forms.DateField(label="Deadline (Month Day, Year):")
     requirements = forms.CharField(label="Requirements", required=False) 
     
 def login_view(request):
