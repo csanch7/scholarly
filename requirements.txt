@@ -1,1 +1,5 @@
-Django==5.2.3
+Django>=4.2
+gunicorn
+whitenoise
+dj-database-url
+psycopg[binary]
