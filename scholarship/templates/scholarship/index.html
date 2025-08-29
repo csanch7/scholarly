@@ -27,7 +27,7 @@
             <div className="welcome">
                     <p>Welcome, <b>{document.querySelector('#username').dataset.id}</b>. Here's a summary of near due date scholarships:</p>
                     <ul>
-                        {scholarships.filter(scholarship => (new Date(scholarship.date) - today) <= 604800000 && (new Date(scholarship.date) - today) > 0 && scholarship.category !== "Completed").map(scholarship => <li key={scholarship.id}> {scholarship.scholarship} ({daysAway(scholarship.date)} day(s) away!)</li>)        } 
+                        {scholarships.filter(scholarship => (new Date(scholarship.date) - today) <= 604800000 && (new Date(scholarship.date) - today) > 0 && scholarship.category !== "Completed").map(scholarship => <li key={scholarship.id}> {scholarship.scholarship} ({daysAway(scholarship.date)} day(s) left!)</li>)        } 
                     </ul>
                 </div>
         )
