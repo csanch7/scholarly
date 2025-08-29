@@ -1,0 +1,50 @@
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    
+    100% {
+        transform: rotate(180deg);
+    }
+}
+
+
+div{
+    padding: 3px;
+}
+
+form, button{
+    border: none;
+}
+body{
+    background-color: rgb(228, 224, 224);
+}
+#accepted-button, #accepted-label, #rejected-button, #rejected-label{
+    font-size: 30px;
+    border: none;
+    background-color: rgb(228, 224, 224);
+    animation-name: rotate;
+    animation-duration: 0.5s;
+    animation-play-state: paused;
+    animation-fill-mode: forwards;
+}
+
+.scholarship, .accepted-schs, .rejected-schs{
+    background-color: white;
+    width: 300px;
+    border: 2px;
+    border-color: black;
+    border-style: inset;
+}
+.scholarshipName{
+    text-decoration: underline;
+}
+.scholarshipName:hover{
+    color: grey;
+}
+.welcome{
+    background-color: white;
+    border: 2px;
+    border-color: black;
+    border-style: inset;
+}

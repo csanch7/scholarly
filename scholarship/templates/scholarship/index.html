@@ -1,0 +1,128 @@
+{% extends "scholarship/layout.html" %}
+{% load static %}
+
+{% block body %}
+{% if user.is_authenticated %}
+<h1>All Scholarships</h1>
+<div id="search"></div>
+
+
+{% endif %}
+{% endblock %}
+
+{% block script %}
+
+<script type="text/babel">
+    const { useState, useEffect } = React
+
+    const Welcome = (prop) => {
+        const scholarships = prop.scholarships
+        const today = new Date()
+        function daysAway(date) {
+            const ms = new Date(date) - today
+            const days = ms / 86400000
+            return Math.ceil(days)
+        }
+        return (
+            <div className="welcome">
+                    <p>Welcome, <b>{document.querySelector('#username').dataset.id}</b>. Here's a summary of near due date scholarships:</p>
+                    <ul>
+                        {scholarships.filter(scholarship => (new Date(scholarship.date) - today) <= 604800000 && (new Date(scholarship.date) - today) > 0 && scholarship.category !== "Completed").map(scholarship => <li key={scholarship.id}> {scholarship.scholarship} ({daysAway(scholarship.date)} day(s) away!)</li>)        } 
+                    </ul>
+                </div>
+        )
+    }
+
+    const Scholarship = (prop) => {
+        const date = new Date(prop.date)
+        const today = new Date()
+        
+        if (date < today && prop.category !== 'Completed'){
+            if (prop.filtering === false){
+                return (
+                <div className="scholarship">
+                <div className="scholarshipName" data-id={prop.id}>{prop.name}</div>
+                <div>Deadline: {prop.date}</div>
+                <div>Amount: {prop.amount}</div>
+                <div>Status: <b>OUTDATED</b></div>
+                </div>
+                )
+            }
+            return(
+                null
+            )
+            
+        }
+        if (date > today && prop.category !== 'Completed'){
+            return (
+                <div className="scholarship">
+                <div className="scholarshipName" data-id={prop.id}>{prop.name}</div>
+                <div>Deadline: {prop.date}</div>
+                <div>Amount: {prop.amount}</div>
+                <div>Status: <b>{prop.category}</b></div>
+                </div>
+            )
+        }
+        return (null)
+            
+    }
+
+
+    const App = () => {
+        const [scholarships, setScholarships] = React.useState([]);
+        const [filtering, setFiltering] = React.useState(false)
+        const [query, setQuery] = React.useState('');
+        const querys = document.querySelectorAll('.scholarship');
+        useEffect(() => {
+            fetch('/scholarships')
+                .then(response => response.json())
+                .then(data => setScholarships(data));
+        }, []);
+        const handleQueryChange = (event) => {
+            setQuery(event.target.value)
+        }
+        const handleFilter = (event) => {
+            setFiltering(!filtering)
+        }
+        
+        const sorted = [...scholarships].sort((a,b) => new Date(a.date) - new Date(b.date))
+
+        const queriedScholarships = sorted.filter(scholarship => {
+            const name = scholarship.scholarship.toString();
+            return(
+             name.toLowerCase().includes(query.toLowerCase())
+        )
+        })
+
+        const today = new Date()
+        
+
+        return (
+            <div>
+                <Welcome scholarships={sorted}/><br/>
+                Search Scholarships: <input value={query} onChange={handleQueryChange} />
+                <br></br>
+                <br></br>
+                <button onClick={handleFilter}>{filtering ? "Unfilter Outdated": "Filter Outdated"}</button>
+                <br/>
+                <br/>
+                {queriedScholarships.map(scholarship => <Scholarship key={scholarship.id} id={scholarship.id} name={scholarship.scholarship} date={scholarship.date} amount={scholarship.amount} category={scholarship.category} filtering={filtering}/>)}
+                
+            </div>
+        );
+    }
+    ReactDOM.render(<App />, document.querySelector("#search"));
+</script>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('click', event => {
+            const element = event.target;
+            if (element.className === "scholarshipName") {
+                window.location.href =`/scholarships/${element.dataset.id}`
+            }
+        })
+    })
+</script>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "scholarship/layout.html" %}
+{% load static %}
+
+{% block body %}
+{% if user.is_authenticated %}
+<h1>Edit Scholarships</h1>
+<form id="edit-form" onsubmit="return false;">
+ <div  id="date" data-date="{{scholarship.date}}" data-id="{{scholarship.id}}"></div>
+ <input autofocus type="text" id="name-field"name="name" placeholder="name" value="{{scholarship.scholarship}}"><br>
+ <input  id="url-field" name="url" placeholder="url"  value="{{scholarship.url}}"><br>
+ <input  id="amount-field" name="amount" placeholder="amount"  value="{{scholarship.amount}}"><br>
+ <input type="date" id="date-field" name="date"><br>
+ <input  id="requirement-field" name="requirements" placeholder="requirements"  value="{{scholarship.requirements}}"><br>
+ <input id="edit-sub"type="submit"value="Save"><br>
+</form>
+
+ <a href="{% url 'scholarship' scholarship.id%}">Go back to Scholarship</a>
+ 
+
+
+{% endif %}
+{% endblock %}
+
+{% block script %}
+<script>
+     document.addEventListener('DOMContentLoaded', function () {
+        const csrftoken = getCookie('csrftoken');
+        const date = new Date(document.querySelector('#date').dataset.date).toISOString().substring(0, 10)
+        const id = document.querySelector("#date").dataset.id
+    document.querySelector('#date-field').value = date
+    
+    document.querySelector('#edit-sub').onclick = () => {
+        fetch(`/scholarships/edit/${id}`, {
+          method: 'PUT',
+          headers: {'X-CSRFToken': csrftoken},
+          mode: 'same-origin',
+          body: JSON.stringify({
+            name: document.querySelector('#name-field').value,
+            url: document.querySelector('#url-field').value,
+            amount: document.querySelector('#amount-field').value,
+            date: document.querySelector('#date-field').value,
+            requirements: document.querySelector('#requirement-field').value,
+
+            
+          })
+        })
+        .then(response => response.json())
+        .then(result => {
+          // Print result
+          console.log(result);
+          window.location.href =`/scholarships/${id}`
+        });
+    }
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    })
+    
+</script>
+{% endblock %}

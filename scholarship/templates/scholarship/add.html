@@ -1,0 +1,21 @@
+{% extends "scholarship/layout.html" %}
+{% load static %}
+
+{% block body %}
+    
+<h1>Add Scholarships</h1>
+
+<form id="compose-form" method="POST">
+        {% csrf_token %}
+        {{form}}
+        
+        <input type="submit" class="btn btn-primary"/>
+
+</form>
+{% endblock %}
+
+
+
+
+
+
