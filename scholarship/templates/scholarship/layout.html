@@ -3,8 +3,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Scholarly{% endblock %}</title>
+
 
     <link
         rel="stylesheet"
@@ -13,74 +15,50 @@
         crossorigin="anonymous"
     >
 
+
     <link href="{% static 'scholarship/styles.css' %}" rel="stylesheet">
 
-    {% block script %}{% endblock %}
+    {% block extra_head %}{% endblock %}
 </head>
 
 <body>
 
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand font-weight-bold" href="{% url 'index' %}">
-            Scholarly
-        </a>
+    <a class="navbar-brand" href="#" id="username" data-id="{{ user.username }}">{{ user.username }}</a>
 
-        <button
-            class="navbar-toggler"
-            type="button"
-            data-toggle="collapse"
-            data-target="#navbarNav"
-        >
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
 
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
             {% if user.is_authenticated %}
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'index' %}">All</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'completedview' %}">Completed</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'compose' %}">Add</a>
-                    </li>
-                </ul>
-
-                <ul class="navbar-nav ml-auto align-items-center">
-                    <li class="nav-item mr-3">
-                        <span class="badge badge-secondary">
-                            {{ user.username }}
-                        </span>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">
-                            Log Out
-                        </a>
-                    </li>
-                </ul>
-
+                <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">All Scholarships</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'completedview' %}">Completed Scholarships</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'compose' %}">Add Scholarships</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
             {% else %}
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Log In</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">Register</a>
-                    </li>
-                </ul>
+                <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
             {% endif %}
-
-        </div>
+        </ul>
     </div>
 </nav>
+
 
 <main class="container py-4">
     {% block body %}{% endblock %}
 </main>
+
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+{% block script %}{% endblock %}
 
 </body>
 </html>
