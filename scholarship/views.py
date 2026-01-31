@@ -14,11 +14,12 @@ from datetime import date, timedelta
 from .models import User, Scholarship
 
 
+
 class NewScholarshipForm(forms.Form):
     scholarship = forms.CharField(label="Scholarship Name")
     url = forms.URLField(label="Url")
     amount = forms.IntegerField(label="Amount",required=False) 
-    fullride = forms.BooleanField(label="Full Ride", required=False) 
+    fullride = forms.BooleanField(label="Full Ride?", required=False) 
     date = forms.DateField(label="Deadline (Month Day, Year):")
     requirements = forms.CharField(label="Requirements", required=False) 
     

@@ -8,6 +8,10 @@
     }
 }
 
+.scholarshipName {
+    cursor: pointer;
+}
+
 
 div{
     padding: 3px;

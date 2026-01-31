@@ -1,19 +1,82 @@
 {% extends "scholarship/layout.html" %}
 {% load static %}
+{% load static form_tags %}
+
 
 {% block body %}
-    
-<h1>Add Scholarships</h1>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4">
 
-<form id="compose-form" method="POST">
-        {% csrf_token %}
-        {{form}}
-        
-        <input type="submit" class="btn btn-primary"/>
+                <h3 class="mb-4">Add a New Scholarship</h3>
 
-</form>
+                <form id="compose-form" method="POST">
+                    {% csrf_token %}
+
+                    <!-- Scholarship Name -->
+                    <div class="mb-3">
+                        {{ form.scholarship.label_tag }}
+                        {{ form.scholarship|add_class:"form-control" }}
+                        {% if form.scholarship.errors %}
+                            <div class="text-danger">{{ form.scholarship.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- URL -->
+                    <div class="mb-3">
+                        {{ form.url.label_tag }}
+                        {{ form.url|add_class:"form-control" }}
+                        {% if form.url.errors %}
+                            <div class="text-danger">{{ form.url.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="mb-3">
+                        {{ form.amount.label_tag }}
+                        {{ form.amount|add_class:"form-control" }}
+                        {% if form.amount.errors %}
+                            <div class="text-danger">{{ form.amount.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Full Ride -->
+                    <div class="form-check mb-3">
+                        {{ form.fullride|add_class:"form-check-input" }}
+                        {{ form.fullride.label_tag }}
+                    </div>
+
+                    <!-- Deadline -->
+                    <div class="mb-3">
+                        {{ form.date.label_tag }}
+                        {{ form.date|add_class:"form-control" }}
+                        {% if form.date.errors %}
+                            <div class="text-danger">{{ form.date.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Requirements -->
+                    <div class="mb-3">
+                        {{ form.requirements.label_tag }}
+                        {{ form.requirements|add_class:"form-control" }}
+                        {% if form.requirements.errors %}
+                            <div class="text-danger">{{ form.requirements.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Add Scholarship</button>
+                </form>
+
+                <div class="mt-3 text-center">
+                    <a href="{% url 'index' %}" class="btn btn-link">← Back to All Scholarships</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
-
 
 
 

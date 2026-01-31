@@ -2,53 +2,85 @@
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{% block title %}Scholarly{% endblock %}</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-        <link href="{% static 'scholarship/styles.css' %}" rel="stylesheet">
-        <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
-        <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
-        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-        {% block script %}
-        {% endblock %}
-    </head>
-    <body>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Scholarly{% endblock %}</title>
 
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <a class="navbar-brand" href="#" id="username" data-id="{{user.username}}">{{user.username}}</a>
-          
-            <div>
-              <ul class="navbar-nav mr-auto">   
-                {% if user.is_authenticated %}
+    <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+        crossorigin="anonymous"
+    >
+
+    <link href="{% static 'scholarship/styles.css' %}" rel="stylesheet">
+
+    {% block script %}{% endblock %}
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand font-weight-bold" href="{% url 'index' %}">
+            Scholarly
+        </a>
+
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#navbarNav"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            {% if user.is_authenticated %}
+                <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'index' %}">All Scholarships</a>
+                        <a class="nav-link" href="{% url 'index' %}">All</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'completedview' %}">Completed Scholarships</a>
+                        <a class="nav-link" href="{% url 'completedview' %}">Completed</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'compose' %}">Add Scholarships</a>
+                        <a class="nav-link" href="{% url 'compose' %}">Add</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav ml-auto align-items-center">
+                    <li class="nav-item mr-3">
+                        <span class="badge badge-secondary">
+                            {{ user.username }}
+                        </span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                        <a class="nav-link" href="{% url 'logout' %}">
+                            Log Out
+                        </a>
                     </li>
-                {% else %}
+                </ul>
+
+            {% else %}
+                <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">Log In</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'register' %}">Register</a>
                     </li>
-                {% endif %}
-                
-              </ul>
-            </div>
-          </nav>
-        
-        <div class="body">
-            {% block body %}
-            {% endblock %}
+                </ul>
+            {% endif %}
+
         </div>
-    </body>
+    </div>
+</nav>
+
+<main class="container py-4">
+    {% block body %}{% endblock %}
+</main>
+
+</body>
 </html>

@@ -3,148 +3,121 @@
 
 {% block body %}
 {% if user.is_authenticated %}
-<h1>Completed Scholarships</h1>
-{% for scholarship in scholarships %}
-    
+<div class="container mt-5">
 
-    {% if scholarship.recieved == None %}
-    <div class="scholarship">
-    <div class="scholarshipName" data-id="{{scholarship.id}}">{{scholarship.scholarship}}</div>
-    <div>Deadline: {{scholarship.date}}</div>
-    <div>Amount: <b>{{scholarship.amount}}</b></div>
+    <h2>Completed Scholarships</h2>
+
+    {% for scholarship in scholarships %}
+        {% if scholarship.recieved == None %}
+            <div class="card mb-3 p-3 shadow-sm">
+                <div class="scholarshipName font-weight-bold" data-id="{{ scholarship.id }}" style="cursor:pointer;">
+                    {{ scholarship.scholarship }}
+                </div>
+                <p>Deadline: {{ scholarship.date }}</p>
+                <p>Amount: <b>{{ scholarship.amount }}</b></p>
+
+                <div class="mt-2">
+                    <span>Have you received this scholarship?</span>
+                    <button class="btn btn-success btn-sm yes-btn" data-id="{{ scholarship.id }}">Yes</button>
+                    <button class="btn btn-danger btn-sm no-btn" data-id="{{ scholarship.id }}">No</button>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <h3>
+        <button class="btn btn-outline-primary btn-sm mr-2" id="accepted-button">Accepted</button>
+    </h3>
+    <div id="accepted-container" style="display:none;">
+        {% for scholarship in scholarships %}
+            {% if scholarship.recieved == True %}
+                <div class="card mb-2 p-2 shadow-sm">
+                    <div class="scholarshipName font-weight-bold" data-id="{{ scholarship.id }}" style="cursor:pointer;">
+                        {{ scholarship.scholarship }}
+                    </div>
+                    <p>Deadline: {{ scholarship.date }}</p>
+                    <p>Amount: <b>{{ scholarship.amount }}</b></p>
+                </div>
+            {% endif %}
+        {% endfor %}
     </div>
-    
 
-    <div>Have you recieved this scholarship?</div><button class="yes-btn" data-id="{{scholarship.id}}">Yes</button><button class="no-btn" data-id="{{scholarship.id}}">No</button>
-    <br>
-    {% endif %}
-
-    
-{% endfor %}
-
-<h2><label id="accepted-label">Accepted</label><button id="accepted-button">^</button></h2>
-{% for scholarship in scholarships %}
-    
-    
-    {% if scholarship.recieved == True %}
-    <div class="accepted-schs" style="display: none;">
-    <div class="scholarshipName" id = "id" data-id="{{scholarship.id}}">{{scholarship.scholarship}}</div>
-    <div>Deadline: {{scholarship.date}}</div>
-    <div>Amount: <b>{{scholarship.amount}}</b></div>
-    
-    <br>
+    <h3 class="mt-4">
+        <button class="btn btn-outline-danger btn-sm mr-2" id="rejected-button">Rejected</button>
+    </h3>
+    <div id="rejected-container" style="display:none;">
+        {% for scholarship in scholarships %}
+            {% if scholarship.recieved == False %}
+                <div class="card mb-2 p-2 shadow-sm">
+                    <div class="scholarshipName font-weight-bold" data-id="{{ scholarship.id }}" style="cursor:pointer;">
+                        {{ scholarship.scholarship }}
+                    </div>
+                    <p>Deadline: {{ scholarship.date }}</p>
+                    <p>Amount: <b>{{ scholarship.amount }}</b></p>
+                </div>
+            {% endif %}
+        {% endfor %}
     </div>
-    {% endif %}
 
-
-{% endfor %}
-
-<br>
-
-<h2><label id="rejected-label">Rejected</label><button id="rejected-button">^</button></h2>
-{% for scholarship in scholarships %}
-    
-
-    {% if scholarship.recieved == False %}
-    <div class="rejected-schs" style="display: none;">
-    <div class="scholarshipName">{{scholarship.scholarship}}</div>
-    <div>Deadline: {{scholarship.date}}</div>
-    <div>Amount: <b>{{scholarship.amount}}</b></div>
-    
-    <br>
-    </div>
-    {% endif %}
-
-
-{% endfor %}
-
-
+</div>
 {% endif %}
 {% endblock %}
 
+
 {% block script %}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const csrftoken = getCookie('csrftoken');
-        const acceptedbutton = document.querySelector('#accepted-button')
-        const rejectedbutton = document.querySelector('#rejected-button')
-        const acceptedScholarships = document.querySelectorAll('.accepted-schs');
-        const rejectedScholarships = document.querySelectorAll('.rejected-schs');
-        acceptedbutton.onclick = () => {
-        acceptedbutton.style.animationPlayState = 'running';
-        acceptedScholarships.forEach(div => {
-                div.style.display = 'block'
-            });
-        };
-        rejectedbutton.onclick = () => {
-        rejectedbutton.style.animationPlayState = 'running';
-        rejectedScholarships.forEach(div => {
-                div.style.display = 'block'
-            });
-        };
-        document.addEventListener('click', event => {
-        const element = event.target;
-        if (element.className == "scholarshipName"){
-            window.location.href = `/scholarships/${element.dataset.id}`
+document.addEventListener('DOMContentLoaded', () => {
+    const csrftoken = getCookie('csrftoken')
 
-        }
-        else if (element.className == "yes-btn"){
-            let id = parseInt(element.dataset.id)
-            fetch(`/scholarships/recieved/${id}`, {
-                method: 'PUT',
-                headers: {'X-CSRFToken': csrftoken},
-                mode: 'same-origin',
-                body: JSON.stringify({
-                    recieved: true,
-                })
-            })
-            .then(response => response.json())
-            .then(result => {
-                console.log(result);
-                window.location.reload();
-            });
+    // Toggle Accepted/Rejected sections
+    const acceptedBtn = document.querySelector('#accepted-button')
+    const rejectedBtn = document.querySelector('#rejected-button')
+    const acceptedContainer = document.querySelector('#accepted-container')
+    const rejectedContainer = document.querySelector('#rejected-container')
 
-        }
-        else if (element.className == "no-btn"){
-            let id = parseInt(element.dataset.id)
-            fetch(`/scholarships/recieved/${id}`, {
-                method: 'PUT',
-                headers: {'X-CSRFToken': csrftoken},
-                mode: 'same-origin',
-                body: JSON.stringify({
-                    recieved: false,
-                })
-            })
-            .then(response => response.json())
-            .then(result => {
-                console.log(result);
-                window.location.reload();
-            });
-
-        }
-        
-        })
-
-
-        function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
+    acceptedBtn.onclick = () => {
+        acceptedContainer.style.display = acceptedContainer.style.display === 'none' ? 'block' : 'none'
+        acceptedBtn.style.transform = acceptedContainer.style.display === 'block' ? 'rotate(180deg)' : 'rotate(0deg)'
     }
 
+    rejectedBtn.onclick = () => {
+        rejectedContainer.style.display = rejectedContainer.style.display === 'none' ? 'block' : 'none'
+        rejectedBtn.style.transform = rejectedContainer.style.display === 'block' ? 'rotate(180deg)' : 'rotate(0deg)'
+    }
+
+    // Scholarship click navigation
+    document.querySelectorAll('.scholarshipName').forEach(elem => {
+        elem.onclick = () => {
+            window.location.href = `/scholarships/${elem.dataset.id}`
+        }
     })
 
+    // Yes/No buttons
+    document.querySelectorAll('.yes-btn, .no-btn').forEach(btn => {
+        btn.onclick = () => {
+            const id = btn.dataset.id
+            const received = btn.classList.contains('yes-btn')
+            fetch(`/scholarships/recieved/${id}`, {
+                method: 'PUT',
+                headers: {'X-CSRFToken': csrftoken},
+                body: JSON.stringify({ recieved: received })
+            })
+            .then(() => window.location.reload())
+        }
+    })
 
-
+    function getCookie(name) {
+        let cookieValue = null
+        if (document.cookie && document.cookie !== '') {
+            document.cookie.split(';').forEach(cookie => {
+                cookie = cookie.trim()
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.slice(name.length + 1))
+                }
+            })
+        }
+        return cookieValue
+    }
+})
 </script>
 {% endblock %}

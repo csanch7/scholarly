@@ -3,126 +3,162 @@
 
 {% block body %}
 {% if user.is_authenticated %}
-<h1>All Scholarships</h1>
-<div id="search"></div>
+<h1 class="mb-4">All Scholarships</h1>
 
+<div
+    id="search"
+    data-username="{{ user.username }}"
+></div>
 
 {% endif %}
 {% endblock %}
 
 {% block script %}
+<script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
 <script type="text/babel">
-    const { useState, useEffect } = React
+const { useState, useEffect } = React
 
-    const Welcome = (prop) => {
-        const scholarships = prop.scholarships
-        const today = new Date()
-        function daysAway(date) {
-            const ms = new Date(date) - today
-            const days = ms / 86400000
-            return Math.ceil(days)
-        }
-        return (
-            <div className="welcome">
-                    <p>Welcome, <b>{document.querySelector('#username').dataset.id}</b>. Here's a summary of near due date scholarships:</p>
-                    <ul>
-                        {scholarships.filter(scholarship => (new Date(scholarship.date) - today) <= 604800000 && (new Date(scholarship.date) - today) > 0 && scholarship.category !== "Completed").map(scholarship => <li key={scholarship.id}> {scholarship.scholarship} ({daysAway(scholarship.date)} day(s) left!)</li>)        } 
-                    </ul>
-                </div>
-        )
+
+const Welcome = ({ username, scholarships }) => {
+    const today = new Date()
+
+    const daysAway = date => {
+        const diff = new Date(date) - today
+        return Math.ceil(diff / 86400000)
     }
 
-    const Scholarship = (prop) => {
-        const date = new Date(prop.date)
-        const today = new Date()
-        
-        if (date < today && prop.category !== 'Completed'){
-            if (prop.filtering === false){
-                return (
-                <div className="scholarship">
-                <div className="scholarshipName" data-id={prop.id}>{prop.name}</div>
-                <div>Deadline: {prop.date}</div>
-                <div>Amount: {prop.amount}</div>
-                <div>Status: <b>OUTDATED</b></div>
-                </div>
-                )
-            }
-            return(
-                null
-            )
-            
-        }
-        if (date > today && prop.category !== 'Completed'){
-            return (
-                <div className="scholarship">
-                <div className="scholarshipName" data-id={prop.id}>{prop.name}</div>
-                <div>Deadline: {prop.date}</div>
-                <div>Amount: {prop.amount}</div>
-                <div>Status: <b>{prop.category}</b></div>
-                </div>
-            )
-        }
-        return (null)
-            
-    }
-
-
-    const App = () => {
-        const [scholarships, setScholarships] = React.useState([]);
-        const [filtering, setFiltering] = React.useState(false)
-        const [query, setQuery] = React.useState('');
-        const querys = document.querySelectorAll('.scholarship');
-        useEffect(() => {
-            fetch('/scholarships')
-                .then(response => response.json())
-                .then(data => setScholarships(data));
-        }, []);
-        const handleQueryChange = (event) => {
-            setQuery(event.target.value)
-        }
-        const handleFilter = (event) => {
-            setFiltering(!filtering)
-        }
-        
-        const sorted = [...scholarships].sort((a,b) => new Date(a.date) - new Date(b.date))
-
-        const queriedScholarships = sorted.filter(scholarship => {
-            const name = scholarship.scholarship.toString();
-            return(
-             name.toLowerCase().includes(query.toLowerCase())
+    const upcoming = scholarships
+        .filter(s =>
+            new Date(s.date) > today &&
+            new Date(s.date) - today <= 604800000 &&
+            s.category !== "Completed"
         )
-        })
+        .slice(0, 3)
 
-        const today = new Date()
-        
+    if (upcoming.length === 0) return null
 
-        return (
-            <div>
-                <Welcome scholarships={sorted}/><br/>
-                Search Scholarships: <input value={query} onChange={handleQueryChange} />
-                <br></br>
-                <br></br>
-                <button onClick={handleFilter}>{filtering ? "Unfilter Outdated": "Filter Outdated"}</button>
-                <br/>
-                <br/>
-                {queriedScholarships.map(scholarship => <Scholarship key={scholarship.id} id={scholarship.id} name={scholarship.scholarship} date={scholarship.date} amount={scholarship.amount} category={scholarship.category} filtering={filtering}/>)}
+    return (
+        <div className="welcome mb-4 p-3">
+            <p>
+                Welcome, <b>{username}</b>. Upcoming deadlines:
+            </p>
+            <ul>
+                {upcoming.map(s => (
+                    <li key={s.id}>
+                        {s.scholarship} ({daysAway(s.date)} day(s) left)
+                    </li>
+                ))}
+            </ul>
+        </div>
+    )
+}
+
+
+const Scholarship = ({ scholarship }) => {
+    const today = new Date()
+    const deadline = new Date(scholarship.date)
+    const isOutdated = deadline < today && scholarship.category !== "Completed"
+
+    return (
+        <div className="scholarship mb-3 p-3">
+            <div
+                className="scholarshipName font-weight-bold"
+                onClick={() =>
+                    window.location.href = `/scholarships/${scholarship.id}`
+                }
                 
+            >
+                {scholarship.scholarship}
             </div>
-        );
-    }
-    ReactDOM.render(<App />, document.querySelector("#search"));
-</script>
 
-<script>
+            <div>Deadline: {scholarship.date}</div>
+            <div>Amount: {scholarship.amount}</div>
 
-    document.addEventListener('DOMContentLoaded', function () {
-        document.addEventListener('click', event => {
-            const element = event.target;
-            if (element.className === "scholarshipName") {
-                window.location.href =`/scholarships/${element.dataset.id}`
-            }
-        })
-    })
+            <div>
+                Status:{" "}
+                <b className={isOutdated ? "text-danger" : "text-success"}>
+                    {isOutdated ? "OUTDATED" : scholarship.category}
+                </b>
+            </div>
+        </div>
+    )
+}
+
+
+const App = () => {
+    const root = document.querySelector("#search")
+    const username = root.dataset.username
+
+    const [scholarships, setScholarships] = useState([])
+    const [query, setQuery] = useState("")
+    const [hideOutdated, setHideOutdated] = useState(false)
+
+    useEffect(() => {
+        fetch("/scholarships")
+            .then(res => res.json())
+            .then(data =>
+                setScholarships(
+                    data.map(s => ({
+                        ...s,
+                        deadline: new Date(s.date)
+                    }))
+                )
+            )
+    }, [])
+
+    const today = new Date()
+
+    const filtered = scholarships
+        .filter(s =>
+            s.scholarship.toLowerCase().includes(query.toLowerCase())
+        )
+        .filter(s =>
+            hideOutdated ? s.deadline >= today : true
+        )
+        .sort((a, b) => a.deadline - b.deadline)
+
+    return (
+        <div>
+            <Welcome
+                username={username}
+                scholarships={filtered}
+            />
+
+            <div className="d-flex mb-3">
+                <input
+                    className="form-control mr-2"
+                    placeholder="Search scholarships..."
+                    value={query}
+                    onChange={e => setQuery(e.target.value)}
+                />
+
+                <button
+                    className="btn btn-outline-secondary"
+                    onClick={() => setHideOutdated(!hideOutdated)}
+                >
+                    {hideOutdated ? "Show Outdated" : "Hide Outdated"}
+                </button>
+            </div>
+
+            {filtered.length === 0 && (
+                <p className="text-muted">
+                    No scholarships match your search.
+                </p>
+            )}
+
+            {filtered.map(s => (
+                <Scholarship
+                    key={s.id}
+                    scholarship={s}
+                />
+            ))}
+        </div>
+    )
+}
+
+ReactDOM.render(<App />, document.querySelector("#search"))
 </script>
 {% endblock %}
